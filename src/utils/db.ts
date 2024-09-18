@@ -23,6 +23,14 @@ export class DatabaseUtil {
         synchronize: true,
         logging: false,
       });
-    } catch (error) {}
+
+      AppDataSource.initialize()
+        .then(() => {
+          console.log("Connected to DB");
+        })
+        .catch((error) => console.log("Eroor connecting", error));
+    } catch (error) {
+      console.error("Error connecting to the DB", error);
+    }
   }
 }
