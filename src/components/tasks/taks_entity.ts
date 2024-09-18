@@ -7,8 +7,8 @@ import {
   JoinColumn,
   Entity,
 } from "typeorm";
-import { Users } from "components/users/users_entity";
-import { Projects } from "components/projects/projects_entity";
+import { Users } from "../users/users_entity";
+import { Projects } from "../projects/projects_entity";
 
 export enum Status {
   NotStarted = "Not-Started",

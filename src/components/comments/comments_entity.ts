@@ -1,5 +1,5 @@
-import { Tasks } from "components/tasks/taks_entity";
-import { Users } from "components/users/users_entity";
+import { Tasks } from "../tasks/taks_entity";
+import { Users } from "../users/users_entity";
 import {
   Entity,
   JoinColumn,

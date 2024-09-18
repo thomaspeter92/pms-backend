@@ -1,6 +1,8 @@
-import express, { Application } from "express";
+import express from "express";
 import { IServerConfig } from "./utils/config";
 import * as config from "../server_config.json";
+import { AppRouter } from "./routes/index";
+import bodyParser from "body-parser";
 
 export class ExpressServer {
   private static server = null;
@@ -11,9 +13,17 @@ export class ExpressServer {
     // initialise express app
     const app = express();
 
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+
     app.get("/ping", (req, res) => {
       res.send("pong");
     });
+
+    const router = new AppRouter(app);
+    if (router) {
+      console.log("Router connected!");
+    }
 
     ExpressServer.server = app.listen(port, () => {
       console.log(

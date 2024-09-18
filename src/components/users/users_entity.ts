@@ -7,7 +7,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from "typeorm";
-import { Roles } from "components/roles/roles_entity";
+import { Roles } from "../roles/roles_entity";
 
 @Entity()
 export class Users {
