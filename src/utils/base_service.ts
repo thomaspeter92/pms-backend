@@ -19,7 +19,7 @@ export class BaseService<T> {
    */
   async create(entity: DeepPartial<T>): Promise<ApiResponse<T>> {
     try {
-      // Create the entity
+      // Create the entity (creates in memory, not yet saved to DB. We can still manipulate before saving)
       const createdEntity = await this.repository.create(entity);
 
       // Save entity to the DB
@@ -42,6 +42,7 @@ export class BaseService<T> {
     try {
       // Check if the entity exists with the ID.
       const exists = await this.findOne(id);
+      // return the error send from findOne (not found)
       if (exists.statusCode === 404) {
         return exists;
       }
@@ -91,5 +92,98 @@ export class BaseService<T> {
     }
   }
 
-  async findOne(id: string): Promise<ApiResponse<T> | undefined> {}
+  async findOne(id: string): Promise<ApiResponse<T> | undefined> {
+    try {
+      const where = {};
+      const primaryKey: string =
+        this.repository.metadata.primaryColumns[0].databaseName;
+      where[primaryKey] = id;
+
+      const options: FindOneOptions<T> = { where: where };
+
+      const data = await this.repository.findOne(options);
+
+      if (data) {
+        return { statusCode: 200, status: "success", data: data };
+      } else {
+        return { statusCode: 404, status: "error", message: "Not Found" };
+      }
+    } catch (error) {
+      return { statusCode: 500, status: "error", message: error.message };
+    }
+  }
+
+  async findAll(queryParams: object): Promise<ApiResponse<T[]>> {
+    try {
+      let data = [];
+      if (Object.keys(queryParams).length > 0) {
+        const query = this.repository.createQueryBuilder();
+        for (const field in queryParams) {
+          if (queryParams.hasOwnProperty(field)) {
+            const value = queryParams[field];
+            query.andWhere(`${field} = '${value}'`);
+          }
+        }
+        data = await query.getMany();
+      } else {
+        data = await this.repository.find();
+      }
+      return { statusCode: 200, status: "success", data: data };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        status: "error",
+        data: [],
+        message: error.message,
+      };
+    }
+  }
+
+  async delete(id: string): Promise<ApiResponse<T>> {
+    try {
+      const exists = await this.findOne(id);
+      if (exists.statusCode === 404) {
+        return exists;
+      }
+
+      await this.repository.delete(id);
+
+      return { statusCode: 200, status: "success" };
+    } catch (error) {
+      return { statusCode: 500, status: "error", message: error.message };
+    }
+  }
+
+  async findByIds(ids: string[]): Promise<ApiResponse<T[]>> {
+    try {
+      const primaryKey: string =
+        this.repository.metadata.primaryColumns[0].databaseName;
+
+      const data = await this.repository
+        .createQueryBuilder()
+        .where(`${primaryKey} IN (:...ids)`, { ids: ids })
+        .getMany();
+
+      return { statusCode: 200, status: "success", data: data };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        status: "error",
+        data: [],
+        message: error.message,
+      };
+    }
+  }
+  async customQuery(query: string): Promise<T[]> {
+    try {
+      const data = await this.repository
+        .createQueryBuilder()
+        .where(query)
+        .getMany();
+
+      return data;
+    } catch (error) {
+      return [];
+    }
+  }
 }
