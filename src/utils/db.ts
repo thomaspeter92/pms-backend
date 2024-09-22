@@ -63,6 +63,11 @@ export class DatabaseUtil {
     }
   }
 
+  /**
+   * Get the repository for a given entity.
+   * @param entity - The entity for which the repository is needed.
+   * @returns The repository instance for the entity.
+   */
   public getRepository(entity) {
     try {
       if (DatabaseUtil.connection) {

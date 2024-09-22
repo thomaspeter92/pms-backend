@@ -7,5 +7,9 @@
     "host": "localhost",
     "port": 5432,
     "dbname": "pms"
+  },
+  "default_user": {
+    "email": "deafult_user@pms.com",
+    "password": "DeafultUser@pms"
   }
 }

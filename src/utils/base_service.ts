@@ -10,6 +10,9 @@ export interface ApiResponse<T> {
 }
 
 export class BaseService<T> {
+  // Initially
+  // private readonly repository: Repository<T> | null = null
+
   constructor(private readonly repository: Repository<T>) {}
 
   /**
@@ -22,6 +25,8 @@ export class BaseService<T> {
       // Create the entity (creates in memory, not yet saved to DB. We can still manipulate before saving)
       const createdEntity = await this.repository.create(entity);
 
+      console.log(this.repository);
+
       // Save entity to the DB
       const savedEntity = await this.repository.save(createdEntity);
 
@@ -30,7 +35,11 @@ export class BaseService<T> {
       if (error.code === "23505") {
         return { statusCode: 409, status: "error", message: error.detail };
       } else {
-        return { statusCode: 500, status: "error", message: error.message };
+        return {
+          statusCode: 500,
+          status: "error",
+          message: error.message,
+        };
       }
     }
   }
@@ -121,7 +130,7 @@ export class BaseService<T> {
         for (const field in queryParams) {
           if (queryParams.hasOwnProperty(field)) {
             const value = queryParams[field];
-            query.andWhere(`${field} = '${value}'`);
+            query.andWhere(`${field}='${value}'`);
           }
         }
         data = await query.getMany();
