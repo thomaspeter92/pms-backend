@@ -1,7 +1,8 @@
 import { BaseController } from "../../utils/base_controller";
 import { Rights } from "../../utils/common";
+import { Roles } from "./roles_entity";
 import { RolesService } from "./roles_service";
-import { Response, Request } from "express";
+import { Response, Request, query } from "express";
 
 export class RoleController extends BaseController {
   public async addHandler(req: Request, res: Response): Promise<void> {
@@ -73,5 +74,28 @@ export class RolesUtil {
 
     // Check if all the role_ids are found in the db
     return roles.data.length === role_ids.length;
+  }
+
+  public static async getAllRightsFromRoles(
+    role_ids: string[]
+  ): Promise<string[]> {
+    // create an instance of RolesService to interact with roles
+    const service = new RolesService();
+
+    // init array to store rights
+    let rights: string[] = [];
+
+    // validate provided role ids with DB
+    const queryData = await service.findByIds(role_ids);
+    const roles: Roles[] = queryData.data ? queryData.data : [];
+
+    // extract rights from each role, add to array
+    roles.forEach((role) => {
+      const rightFromRole: string[] = role.rights.split(",");
+      rights = [...new Set(rights.concat(rightFromRole))];
+    });
+
+    // return accumulated rights
+    return rights;
   }
 }

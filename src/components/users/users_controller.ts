@@ -138,3 +138,20 @@ export class UsersController {
 
   public async deleteHandler() {}
 }
+
+export class UsersUtil {
+  public static async getUserFromUsername(username: string) {
+    try {
+      if (username) {
+        const service = new UsersService();
+        const users = await service.customQuery(`username = '${username}'`);
+        if (users && users.length > 0) {
+          return users[0];
+        }
+      }
+    } catch (error) {
+      console.error(`Error while getUserFromToken () => ${error.message}`);
+    }
+    return null;
+  }
+}
