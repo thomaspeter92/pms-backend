@@ -2,6 +2,7 @@ import { Express } from "express";
 import { UsersController } from "./users_controller";
 import { validate } from "../../utils/validator";
 import { body } from "express-validator";
+import { authorize } from "../../utils/auth_util";
 
 const validUserInput = [
   body("full_name").trim().notEmpty().withMessage("fullname required"),
@@ -22,6 +23,23 @@ const validUserInput = [
   body("role_id").isUUID().withMessage("It must be uuid of role"),
 ];
 
+const updateValidUserInput = [
+  body("role_ids")
+    .isArray()
+    .withMessage("It must be an array of uuids of roles")
+    .custom((value: string[]) => {
+      if (value?.length > 0 && value instanceof Array) {
+        const uuidPattern =
+          /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+        const isValid = value?.every((uuid) => uuidPattern.test(uuid.trim()));
+        if (!isValid) {
+          throw new Error("It has invalid uuids for role");
+        }
+      }
+      return true; // Validation passed
+    }),
+];
+
 export class UsersRouter {
   private baseEndpoint = "/api/users";
 
@@ -30,13 +48,15 @@ export class UsersRouter {
 
     app
       .route(this.baseEndpoint)
+      .all(authorize) // Apply auth middleware before forwarding request
       .get(controller.getAllHandler)
       .post(validate(validUserInput), controller.addHandler);
 
     app
       .route(this.baseEndpoint + "/:id")
-      .get(controller.getDetailsHandler)
-      .put(controller.updateHandler)
+      .all(authorize) // Apply auth middleware before forwarding request
+      .get(controller.getOneHandler)
+      .put(validate(updateValidUserInput), controller.updateHandler)
       .delete(controller.deleteHandler);
 
     app.route("/api/login").post(controller.login);

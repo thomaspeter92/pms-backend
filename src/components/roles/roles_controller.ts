@@ -3,9 +3,16 @@ import { Rights } from "../../utils/common";
 import { Roles } from "./roles_entity";
 import { RolesService } from "./roles_service";
 import { Response, Request, query } from "express";
+import { hasPermission } from "../../utils/auth_util";
 
 export class RoleController extends BaseController {
   public async addHandler(req: Request, res: Response): Promise<void> {
+    if (!hasPermission(req.user.rights, "add_role")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
     const role = req.body;
     const service = new RolesService();
     const result = await service.create(role);
@@ -14,6 +21,12 @@ export class RoleController extends BaseController {
   }
 
   public async getAllHandler(req: Request, res: Response): Promise<void> {
+    if (!hasPermission(req.user.rights, "get_all_roles")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
     const service = new RolesService();
     const result = await service.findAll(req.query);
     res.status(result.statusCode).json(result);
@@ -21,15 +34,25 @@ export class RoleController extends BaseController {
   }
 
   public async getOneHandler(req: Request, res: Response): Promise<void> {
+    if (!hasPermission(req.user.rights, "get_details_role")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
     const service = new RolesService();
     const result = await service.findOne(req.params.id);
     res.status(result.statusCode).json(result);
     return;
   }
 
-  public getDetailsHandler() {}
-
   public async updateHandler(req: Request, res: Response): Promise<void> {
+    if (!hasPermission(req.user.rights, "edit_role")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
     const role = req.body;
     const service = new RolesService();
     const result = await service.update(req.params.id, role);
@@ -38,6 +61,12 @@ export class RoleController extends BaseController {
   }
 
   public async deleteHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "delete_role")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
     const service = new RolesService();
     const result = await service.delete(req.params.id);
     res.status(result.statusCode).json(result);

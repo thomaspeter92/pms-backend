@@ -3,8 +3,135 @@ import { UsersService } from "./users_service";
 import { RolesUtil } from "../../components/roles/roles_controller";
 import { bcryptCompare, encryptString, SERVER_CONST } from "../../utils/common";
 import * as jwt from "jsonwebtoken";
+import { hasPermission } from "../../utils/auth_util";
+import { BaseController } from "../../utils/base_controller";
 
-export class UsersController {
+export class UsersController extends BaseController {
+  // Handles adding a new user to the DB
+  public async addHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "add_user")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
+    try {
+      const service = new UsersService();
+      const user = req.body;
+
+      // Check the role ids are valid
+      const isValidRole = await RolesUtil.checkValidRoleIds([user.role_id]);
+
+      // Return 400 error if invalid ids
+      if (!isValidRole) {
+        res.status(400).json({
+          statusCode: 400,
+          status: "error",
+          message: "Invalid role ids",
+        });
+      }
+
+      user.email = user.email?.toLowerCase();
+      user.username = user.username?.toLowerCase();
+
+      // Encrypt the password
+      user.password = await encryptString(user.password);
+
+      // Save user to the DB
+      const createdUser = await service.create(user);
+      res.status(createdUser.statusCode).json(createdUser);
+      return;
+    } catch (error) {
+      console.error(`Error while creating user`, error.message);
+      res.status(500).json({
+        statusCode: 500,
+        status: "error",
+        message: "Internal server error",
+      });
+    }
+  }
+
+  public async getAllHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "get_all_users")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
+    const service = new UsersService();
+    const result = await service.findAll(req.query);
+    if (result.statusCode === 200) {
+      // Remove password field to send in response
+      result.data.forEach((i) => delete i.password);
+    }
+    res.status(result.statusCode).json(result);
+    return;
+  }
+
+  public async getOneHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "get_details_user")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
+    const service = new UsersService();
+    const result = await service.findOne(req.params.id);
+    if (result.statusCode === 200) {
+      // Remove password field to send in response
+      delete result.data.password;
+    }
+    res.status(result.statusCode).json(result);
+    return;
+  }
+
+  /**
+   * Handles the update of an EXISTING user.
+   * @param {object} req - The request object.
+   * @param {object} res - The response object.
+   */
+  public async updateHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "edit_user")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
+    const service = new UsersService();
+    const user = req.body;
+
+    // we will not update email and username once inserted so remove it from body
+    delete user?.email;
+    delete user?.username;
+
+    // we will also not update password from here it will be from changePassword function separate
+    delete user?.password;
+
+    const result = await service.update(req.params.id, user);
+    if (result.statusCode === 200) {
+      delete result.data.password;
+    }
+    res.status(result.statusCode).json(result);
+    return;
+  }
+
+  public async deleteHandler(req: Request, res: Response) {
+    if (!hasPermission(req.user.rights, "delete_user")) {
+      res
+        .status(403)
+        .json({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
+    }
+    const service = new UsersService();
+    const result = await service.delete(req.params.id);
+    res.status(result.statusCode).json(result);
+    return;
+  }
+
+  /**
+   * Login the user with the email and password. Compares provided password against hashed password in DB
+   * Sends back a JWT access token and refresh token
+   */
   public async login(req: Request, res: Response): Promise<void> {
     const { email, password } = req.body;
     const service = new UsersService();
@@ -16,7 +143,6 @@ export class UsersController {
         .json({ statusCode: 404, status: "error", message: "Email not found" });
       return;
     }
-
     const user = result.data[0];
 
     //  compare password to db hashed pw
@@ -54,13 +180,16 @@ export class UsersController {
     return;
   }
 
+  /**
+   * Takes refresh token from request and generates a new accessToken with same user credentials
+   * TODO: also return a new refresh token?
+   */
   public async getAccessTokenFromRefreshToken(
     req: Request,
     res: Response
   ): Promise<void> {
     // Get the refresh tojen from the request body
     const refreshToken = req.body.refresh_token;
-
     // verify token
     jwt.verify(refreshToken, SERVER_CONST.JWTSECRET, (err, user) => {
       if (err) {
@@ -84,59 +213,6 @@ export class UsersController {
     });
     return;
   }
-
-  // Handles adding a new user to the DB
-  public async addHandler(req: Request, res: Response) {
-    // if (!hasPermission(req.user.rights, 'add_user')) {
-    //   res.status(403).json({ statusCode: 403, status: 'error', message: 'Unauthorised' });
-    //   return;
-    // }
-
-    try {
-      const service = new UsersService();
-
-      const user = req.body;
-
-      console.log(user);
-      // Check the role ids are valid
-      const isValidRole = await RolesUtil.checkValidRoleIds([user.role_id]);
-
-      // Return 400 error if invalid ids
-      if (!isValidRole) {
-        res.status(400).json({
-          statusCode: 400,
-          status: "error",
-          message: "Invalid role ids",
-        });
-      }
-
-      user.email = user.email?.toLowerCase();
-      user.username = user.username?.toLowerCase();
-
-      // Encrypt the password
-      user.password = await encryptString(user.password);
-
-      // Save user to the DB
-      const createdUser = await service.create(user);
-      res.status(createdUser.statusCode).json(createdUser);
-      return;
-    } catch (error) {
-      console.error(`Error while creating user`, error.message);
-      res.status(500).json({
-        statusCode: 500,
-        status: "error",
-        message: "Internal server error",
-      });
-    }
-  }
-
-  public getAllHandler() {}
-
-  public getDetailsHandler() {}
-
-  public async updateHandler() {}
-
-  public async deleteHandler() {}
 }
 
 export class UsersUtil {

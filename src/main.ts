@@ -10,12 +10,12 @@ const args = process.argv.slice(2);
 if (cluster.isPrimary) {
   console.log(`Master process PID: ${process.pid}`);
   if (args.length > 0 && args[0] === "--init") {
-    async () => {
+    (async () => {
       await DatabaseUtil.getInstance();
       await DDLUtil.addDefaultRole();
       await DDLUtil.addDefaultUser();
       process.exit();
-    };
+    })();
   } else {
     for (let i = 0; i < numCPUs; i++) {
       cluster.fork();

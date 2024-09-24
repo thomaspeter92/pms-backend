@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { SERVER_CONST } from "./common";
-import { Users } from "components/users/users_entity";
-import { UsersUtil } from "components/users/users_controller";
-import { RolesUtil } from "components/roles/roles_controller";
+import { Users } from "../components/users/users_entity";
+import { UsersUtil } from "../components/users/users_controller";
+import { RolesUtil } from "../components/roles/roles_controller";
 
 export const authorize = async (
   req: Request,
@@ -14,6 +14,7 @@ export const authorize = async (
   const token = req.headers?.authorization
     ? (req.headers?.authorization?.split("Bearer ")[1] as string)
     : null;
+  console.log(token);
   if (!token) {
     return res.status(401).json({
       statusCode: 401,
@@ -36,7 +37,7 @@ export const authorize = async (
       const rights = await RolesUtil.getAllRightsFromRoles([user.role_id]);
       req.user.rights = rights;
     }
-    // Authorisedm proceed to next
+    // Authorised proceed to next
     next();
   } catch (error) {
     console.error(error.message);

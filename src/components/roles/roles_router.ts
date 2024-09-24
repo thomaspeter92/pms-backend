@@ -2,6 +2,7 @@ import { Express } from "express";
 import { RoleController, RolesUtil } from "./roles_controller";
 import { validate } from "../../utils/validator";
 import { body } from "express-validator";
+import { authorize } from "../../utils/auth_util";
 
 const validRoleInput = [
   body("name").trim().notEmpty().withMessage("required"),
@@ -30,11 +31,13 @@ export class RolesRouter {
 
     app
       .route(this.baseEndpoint)
+      .all(authorize) // Apply auth middleware before forwarding request
       .get(controller.getAllHandler)
       .post(validate(validRoleInput), controller.addHandler);
 
     app
       .route(this.baseEndpoint + "/:id")
+      .all(authorize) // Apply auth middleware before forwarding request
       .get(controller.getOneHandler)
       .put(validate(validRoleInput), controller.updateHandler)
       .delete(controller.deleteHandler);
