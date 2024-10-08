@@ -128,6 +128,63 @@ export class UsersController extends BaseController {
     return;
   }
 
+  public async changePassword(req: Request, res: Response): Promise<void> {
+    const { oldPassword, newPassword } = req.body;
+
+    const service = new UsersService();
+
+    const dbUser = await service.findOne(req.params.id);
+
+    if (dbUser.statusCode !== 200) {
+      res
+        .status(404)
+        .send({ statusCode: 404, status: "error", message: "user not found" });
+      return;
+    }
+
+    const user = dbUser.data;
+
+    // check requested user_id and jwttoken user are the same
+    if (user?.username !== req.user.username) {
+      res.status(400).send({
+        statusCode: 400,
+        status: "error",
+        message: "Not the same user",
+      });
+      return;
+    }
+
+    const comparePasswords = bcryptCompare(oldPassword, user.password);
+    if (!comparePasswords) {
+      res.status(400).json({
+        statusCode: 400,
+        status: "error",
+        message: "Invalid password",
+      });
+      return;
+    }
+
+    // encrypt new password & save to user object
+    user.password = await encryptString(user.password);
+
+    // update user
+    const result = await service.update(req.params.id, user);
+
+    if (result.statusCode === 200) {
+      res.status(200).send({
+        statusCode: 200,
+        status: "success",
+        message: "password updated",
+      });
+    } else {
+      res.status(500).send({
+        statusCode: 500,
+        status: "error",
+        message: "unable to update password",
+      });
+    }
+  }
+
   /**
    * Login the user with the email and password. Compares provided password against hashed password in DB
    * Sends back a JWT access token and refresh token
@@ -188,7 +245,7 @@ export class UsersController extends BaseController {
     req: Request,
     res: Response
   ): Promise<void> {
-    // Get the refresh tojen from the request body
+    // Get the refresh token from the request body
     const refreshToken = req.body.refresh_token;
     // verify token
     jwt.verify(refreshToken, SERVER_CONST.JWTSECRET, (err, user) => {
