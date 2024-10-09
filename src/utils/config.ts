@@ -8,4 +8,6 @@ export interface IServerConfig {
     port: number;
     dbname: string;
   };
+
+  front_app_url: string;
 }

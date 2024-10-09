@@ -3,6 +3,7 @@ import cluster from "cluster";
 import os from "os";
 import { DatabaseUtil } from "./utils/db";
 import { DDLUtil } from "./utils/ddl_util";
+require("dotenv").config();
 
 const numCPUs = os.cpus().length;
 const args = process.argv.slice(2);

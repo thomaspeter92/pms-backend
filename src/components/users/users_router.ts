@@ -40,6 +40,24 @@ const updateValidUserInput = [
     }),
 ];
 
+const validNewPassword = [
+  body("oldPassword").trim().notEmpty().withMessage("Old password is required"),
+  body("newPassword")
+    .trim()
+    .isLength({ min: 6, max: 12 })
+    .withMessage("Password must be between 6-12 characters")
+    .isStrongPassword({
+      minLowercase: 1,
+      minUppercase: 1,
+      minSymbols: 1,
+      minNumbers: 1,
+    })
+    .withMessage(
+      "Password should contain at least one uppercase & lowercase letter, one special character and one number."
+    ),
+  body("role_ids"),
+];
+
 export class UsersRouter {
   private baseEndpoint = "/api/users";
 
@@ -64,5 +82,12 @@ export class UsersRouter {
     app
       .route("/api/refresh_token")
       .post(controller.getAccessTokenFromRefreshToken);
+
+    app
+      .route(this.baseEndpoint + "/changePassword")
+      .all(authorize)
+      .post(validate(validNewPassword), controller.changePassword);
+
+    app.route("/api/forgotPassword").post(controller.forgotPassword);
   }
 }

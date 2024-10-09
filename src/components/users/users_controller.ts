@@ -5,6 +5,8 @@ import { bcryptCompare, encryptString, SERVER_CONST } from "../../utils/common";
 import * as jwt from "jsonwebtoken";
 import { hasPermission } from "../../utils/auth_util";
 import { BaseController } from "../../utils/base_controller";
+import { Users } from "./users_entity";
+import { sendMail } from "../../utils/email_util";
 
 export class UsersController extends BaseController {
   // Handles adding a new user to the DB
@@ -133,7 +135,9 @@ export class UsersController extends BaseController {
 
     const service = new UsersService();
 
-    const dbUser = await service.findOne(req.params.id);
+    console.log(req.user);
+
+    const dbUser = await service.findOne(req.user.user_id);
 
     if (dbUser.statusCode !== 200) {
       res
@@ -165,10 +169,10 @@ export class UsersController extends BaseController {
     }
 
     // encrypt new password & save to user object
-    user.password = await encryptString(user.password);
+    user.password = await encryptString(newPassword);
 
     // update user
-    const result = await service.update(req.params.id, user);
+    const result = await service.update(user.user_id, user);
 
     if (result.statusCode === 200) {
       res.status(200).send({
@@ -176,12 +180,14 @@ export class UsersController extends BaseController {
         status: "success",
         message: "password updated",
       });
+      return;
     } else {
       res.status(500).send({
         statusCode: 500,
         status: "error",
         message: "unable to update password",
       });
+      return;
     }
   }
 
@@ -214,13 +220,13 @@ export class UsersController extends BaseController {
 
     // Generate access and refresh token
     const accessToken: string = jwt.sign(
-      { email: user.email, username: user.username },
+      { email: user.email, username: user.username, user_id: user.user_id },
       SERVER_CONST.JWTSECRET,
       { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS }
     );
 
     const refreshToken: string = jwt.sign(
-      { email: user.email, username: user.username },
+      { email: user.email, username: user.username, user_id: user.user_id },
       SERVER_CONST.JWTSECRET,
       { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS }
     );
@@ -270,6 +276,60 @@ export class UsersController extends BaseController {
     });
     return;
   }
+
+  public async forgotPassword(req: Request, res: Response): Promise<void> {
+    const { email } = req.body;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      res
+        .status(400)
+        .send({ statusCode: 400, status: "error", message: "Invalid email" });
+      return;
+    }
+    const user: Users = await UsersUtil.getUserByEmail(email);
+    if (!user) {
+      res
+        .status(404)
+        .send({ statusCode: 404, status: "error", message: "User not found" });
+      return;
+    }
+
+    // Generate a reset token
+    const resetToken: string = jwt.sign(
+      { email: user.email },
+      SERVER_CONST.JWTSECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Generate the reset link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    const mailOptions = {
+      to: email,
+      subject: "Password Reset",
+      html: `Hello ${user.username}, <p>To reset your password, please follow the following link: </p> <p><a href="${resetLink}"> Reset Password </p>`,
+    };
+
+    const emailStatus = await sendMail(
+      mailOptions.to,
+      mailOptions.subject,
+      mailOptions.html
+    );
+    if (emailStatus) {
+      res.status(200).send({
+        statusCode: 200,
+        status: "success",
+        message: "Password reset link has been sent.",
+        data: { resetToken: resetToken },
+      });
+    } else {
+      res.status(400).send({
+        statusCode: 400,
+        status: "error",
+        message: "Something went wrong sending password reset",
+      });
+    }
+  }
 }
 
 export class UsersUtil {
@@ -284,6 +344,21 @@ export class UsersUtil {
       }
     } catch (error) {
       console.error(`Error while getUserFromToken () => ${error.message}`);
+    }
+    return null;
+  }
+
+  public static async getUserByEmail(email: string) {
+    try {
+      if (email) {
+        const service = new UsersService();
+        const users = await service.customQuery(`email = '${email}'`);
+        if (users && users.length > 0) {
+          return users[0];
+        }
+      }
+    } catch (error) {
+      console.log("Error getting user by token: ", error.message);
     }
     return null;
   }
