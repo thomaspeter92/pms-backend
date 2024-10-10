@@ -1,4 +1,5 @@
 import * as bcrypt from "bcrypt";
+import { DateTime } from "luxon";
 
 export const Rights = {
   ROLES: {
@@ -65,4 +66,8 @@ export const SERVER_CONST = {
   JWTSECRET: "SecretKeyOfPMS-SECRET",
   ACCESS_TOKEN_EXPIRY_TIME_SECONDS: 1 * 8 * 60 * 60, // 8 hours
   REFRESH_TOKEN_EXPIRY_TIME_SECONDS: 5 * 7 * 24 * 60 * 60, // 1 week
+};
+
+export const checkValidDate = (value: string) => {
+  return DateTime.fromFormat(value, "yyyy-MM-dd HH:mm:ss").isValid;
 };

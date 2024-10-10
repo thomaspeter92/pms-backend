@@ -425,4 +425,30 @@ export class UsersUtil {
     }
     return null;
   }
+
+  /**
+   * For validating an array of user ids are all valid users in the DB
+   */
+  public static async checkValidUserIds(user_ids: string[]) {
+    const service = new UsersService();
+
+    const users = await service.findByIds(user_ids);
+
+    // if the same length, all users are in the DB
+    return users.data.length === user_ids.length;
+  }
+
+  public static async getUsernamesById(user_ids: string[]) {
+    const service = new UsersService();
+    const result = await service.findByIds(user_ids);
+    if (result.statusCode === 200) {
+      const users = result.data;
+      const usernames = users.map((i) => ({
+        username: i.username,
+        user_id: i.user_id,
+      }));
+      return usernames;
+    }
+    return [];
+  }
 }

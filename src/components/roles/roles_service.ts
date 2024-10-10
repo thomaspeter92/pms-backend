@@ -2,7 +2,6 @@ import { Repository } from "typeorm";
 import { BaseService } from "../../utils/base_service";
 import { DatabaseUtil } from "../../utils/db";
 import { Roles } from "./roles_entity";
-
 export class RolesService extends BaseService<Roles> {
   constructor() {
     // db instance
