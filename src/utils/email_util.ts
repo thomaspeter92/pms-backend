@@ -19,7 +19,7 @@ export const sendMail = async (to: string, subject: string, body: string) => {
     const mailOptions = {
       from: "pms-support@pms.com",
       to: to,
-      sunject: subject,
+      subject: subject,
       html: body,
     };
 

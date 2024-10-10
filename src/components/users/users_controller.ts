@@ -130,6 +130,9 @@ export class UsersController extends BaseController {
     return;
   }
 
+  /**
+   * This method is for changing a password for users already logged in (not forgotten)
+   */
   public async changePassword(req: Request, res: Response): Promise<void> {
     const { oldPassword, newPassword } = req.body;
 
@@ -327,6 +330,66 @@ export class UsersController extends BaseController {
         statusCode: 400,
         status: "error",
         message: "Something went wrong sending password reset",
+      });
+    }
+  }
+
+  /**
+   * This method is for users who forgot their password
+   * Uses the reset token provided by forgotPassword method
+   */
+  public async resetPassword(req: Request, res: Response): Promise<void> {
+    const { newPassword, token } = req.body;
+    const service = new UsersService();
+
+    let email: string;
+    try {
+      const decodedToken = jwt.verify(token, SERVER_CONST.JWTSECRET);
+      if (!decodedToken) {
+        throw new Error("Invalid reset token");
+      }
+      email = decodedToken["email"];
+    } catch (error) {
+      res.status(400).send({
+        statusCode: 400,
+        status: "error",
+        message: "Reset token invalid/expired",
+      });
+      return;
+    }
+
+    try {
+      const user = await UsersUtil.getUserByEmail(email);
+      if (!user) {
+        res.status(404).send({
+          statusCode: 404,
+          status: "error",
+          message: "User not found",
+        });
+        return;
+      }
+
+      // encrypt password
+      user.password = await encryptString(newPassword);
+      const result = await service.update(user.user_id, user);
+
+      if (result.statusCode === 200) {
+        res.status(200).send({
+          statusCode: 200,
+          status: "success",
+          message: "Password updated",
+        });
+        return;
+      } else {
+        res.status(result.statusCode).send(result);
+        return;
+      }
+    } catch (error) {
+      console.log("Error when resetting password");
+      res.status(500).send({
+        statusCode: 500,
+        status: "error",
+        message: "Internal server error",
       });
     }
   }
