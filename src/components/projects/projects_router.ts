@@ -8,6 +8,7 @@ import { validate } from "../../utils/validator";
 const validProjectInput = [
   body("name").trim().notEmpty().withMessage("Porject name required"),
   body("user_ids").isArray().withMessage("List of user_ids required"),
+  body("description").trim().notEmpty().withMessage("Description required"),
   body("start_time").custom((value) => {
     if (!checkValidDate(value)) {
       throw new Error("Invalid start date format");
@@ -46,8 +47,9 @@ export class ProjectsRouter {
 
     app
       .route(this.baseEndpoint + "/:id")
+      .all(authorize)
       .get(controller.getDetailsHandler)
-      .put(controller.updateHandler)
+      .put(validate(validProjectInput), controller.updateHandler)
       .delete(controller.deleteHandler);
   }
 }

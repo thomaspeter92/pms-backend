@@ -59,7 +59,7 @@ export class ProjectsController {
   }
 
   public async getDetailsHandler(req: Request, res: Response): Promise<void> {
-    if (!hasPermission(req.user.rights, "get_details_project")) {
+    if (!hasPermission(req?.user?.rights, "get_details_project")) {
       res.status(403).json({
         statusCode: 403,
         status: "error",
@@ -78,10 +78,42 @@ export class ProjectsController {
   }
 
   public async updateHandler(req: Request, res: Response): Promise<void> {
-    return;
+    if (!hasPermission(req.user?.rights, "edit_project")) {
+      res.status(403).json({
+        statusCode: 403,
+        status: "error",
+        message: "Unauthorised",
+      });
+      return;
+    }
+
+    const project = req.body;
+    const service = new ProjectsService();
+    const result = await service.update(req.params.id, project);
+    res.status(result.statusCode).send(result);
   }
 
   public async deleteHandler(req: Request, res: Response): Promise<void> {
-    return;
+    if (!hasPermission(req.user?.rights, "delete_project")) {
+      res
+        .status(403)
+        .send({ statusCode: 403, error: "error", message: "Unauthorised" });
+      return;
+    }
+
+    const service = new ProjectsService();
+    const result = await service.delete(req.params.id);
+    res.status(result.statusCode).json(result);
+  }
+}
+
+export class ProjectsUtil {
+  public static async checkValidProjectIds(project_ids: string[]) {
+    const service = new ProjectsService();
+
+    const projects = await service.findByIds(project_ids);
+
+    // if same length, all the ids are valid
+    return projects.data.length === project_ids.length;
   }
 }

@@ -17,12 +17,12 @@ export class AppRouter {
       ProjectsRouter,
     ];
 
-    for (const routerClass of routerClasses) {
+    for (const RouterClass of routerClasses) {
       try {
-        new routerClass(app);
-        console.log(`Router: ${routerClass.name} - CONNECTED`);
+        new RouterClass(app);
+        console.log(`Router: ${RouterClass.name} - CONNECTED`);
       } catch (error) {
-        console.log(`Router: ${routerClass.name} - FAILED`);
+        console.log(`Router: ${RouterClass.name} - FAILED`);
       }
     }
   }
