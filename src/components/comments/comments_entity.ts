@@ -1,4 +1,4 @@
-import { Tasks } from "../tasks/taks_entity";
+import { Tasks } from "../tasks/tasks_entity";
 import { Users } from "../users/users_entity";
 import {
   Entity,

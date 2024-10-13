@@ -4,7 +4,7 @@ import * as config from "../../server_config.json";
 import { Roles } from "../components/roles/roles_entity";
 import { Users } from "../components/users/users_entity";
 import { Projects } from "../components/projects/projects_entity";
-import { Tasks } from "../components/tasks/taks_entity";
+import { Tasks } from "../components/tasks/tasks_entity";
 import { Comments } from "../components/comments/comments_entity";
 
 export class DatabaseUtil {
