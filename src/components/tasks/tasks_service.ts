@@ -62,8 +62,6 @@ export class TasksService extends BaseService<Tasks> {
         this.tasksRepository.metadata.primaryColumns[0].databaseName;
       where[primaryKey] = id;
 
-      console.log("TASKKKKKK");
-
       // Use repo to find entity based on id
       const data = await this.tasksRepository
         .createQueryBuilder("task")

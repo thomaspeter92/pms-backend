@@ -219,6 +219,7 @@ export class UsersController extends BaseController {
         status: "error",
         message: "Invalid password",
       });
+      return;
     }
 
     // Generate access and refresh token

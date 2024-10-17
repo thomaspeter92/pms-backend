@@ -84,10 +84,32 @@ export class TaskController {
   }
 
   public async updateHandler(req: Request, res: Response): Promise<void> {
+    if (!hasPermission(req.user?.rights, "edit_task")) {
+      res.status(403).send({
+        statusCode: 403,
+        status: "error",
+        message: "Unauthorised",
+      });
+    }
+    const task = req.body;
+    const service = new TasksService();
+    const result = await service.update(req.params.id, task);
+    res.status(result.statusCode).json(result);
+
     return;
   }
 
   public async deleteHandler(req: Request, res: Response): Promise<void> {
-    return;
+    if (!hasPermission(req?.user?.rights, "delete_task")) {
+      res.status(403).send({
+        statusCode: 403,
+        status: "error",
+        message: "Unauthorised",
+      });
+      return;
+    }
+    const service = new TasksService();
+    const result = await service.delete(req.params.id);
+    res.status(result.statusCode).json(result);
   }
 }

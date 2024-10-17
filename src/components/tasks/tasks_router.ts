@@ -41,6 +41,31 @@ const validTaskInput = [
   }),
 ];
 
+const updateTaskInput = [
+  body("estimated_start_time").custom((val, { req }) => {
+    if (!checkValidDate(val)) {
+      throw new Error("Invalid date format YYYY-MM-DD HH:mm:ss");
+    }
+    const startTime = new Date(val);
+    const currentTime = new Date();
+    if (startTime <= currentTime) {
+      throw new Error("Start time must be in the future");
+    }
+    return true;
+  }),
+  body("estimated_end_time").custom((val, { req }) => {
+    if (!checkValidDate(val)) {
+      throw new Error("Invalid date format YYYY-MM-DD HH:mm:ss");
+    }
+    const startTime = new Date(req.body.start_time);
+    const endTime = new Date();
+    if (endTime <= startTime) {
+      throw new Error("End time must be later than start time");
+    }
+    return true;
+  }),
+];
+
 export class TasksRouter {
   private baseEndpoint = "/api/tasks";
 
@@ -57,7 +82,7 @@ export class TasksRouter {
       .route(this.baseEndpoint + "/:id")
       .all(authorize)
       .get(controller.getDetailsHandler)
-      .put(controller.updateHandler)
+      .put(validate(updateTaskInput), controller.updateHandler)
       .delete(controller.deleteHandler);
   }
 }
