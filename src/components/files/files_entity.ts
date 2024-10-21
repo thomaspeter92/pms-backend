@@ -1,10 +1,9 @@
-import { Tasks } from "components/tasks/tasks_entity";
-import { Users } from "components/users/users_entity";
+import { Tasks } from "../../components/tasks/tasks_entity";
+import { Users } from "../../components/users/users_entity";
 import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
   Entity,

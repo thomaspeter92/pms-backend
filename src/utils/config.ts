@@ -8,6 +8,11 @@ export interface IServerConfig {
     port: number;
     dbname: string;
   };
-
+  email_config: {
+    from: string;
+    user: string;
+    password: string;
+  };
   front_app_url: string;
+  attached_files_path?: string;
 }

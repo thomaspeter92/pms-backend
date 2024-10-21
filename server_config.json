@@ -8,9 +8,12 @@
     "port": 5432,
     "dbname": "pms"
   },
-  "default_user": {
-    "email": "deafult_user@pms.com",
-    "password": "DeafultUser@pms"
+
+  "email_config": {
+    "from": "pms-support@pms.com",
+    "user": "pmsbook2023@gmail.com",
+    "password": "*****"
   },
-  "front_app_url": "http://127.0.0.1:5000"
+  "front_app_url": "http://127.0.0.1:5000",
+  "attached_files_url": ""
 }
