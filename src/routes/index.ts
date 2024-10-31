@@ -4,6 +4,7 @@ import { UsersRouter } from "../components/users/users_router";
 import { CommentsRouter } from "../components/comments/comments_router";
 import { TasksRouter } from "../components/tasks/tasks_router";
 import { ProjectsRouter } from "../components/projects/projects_router";
+import { FilesRouter } from "../components/files/files_router";
 
 export class AppRouter {
   public router: Router;
@@ -15,6 +16,7 @@ export class AppRouter {
       CommentsRouter,
       TasksRouter,
       ProjectsRouter,
+      FilesRouter,
     ];
 
     for (const RouterClass of routerClasses) {
