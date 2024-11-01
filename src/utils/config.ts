@@ -14,5 +14,5 @@ export interface IServerConfig {
     password: string;
   };
   front_app_url: string;
-  attached_files_path?: string;
+  attached_files_url?: string;
 }
