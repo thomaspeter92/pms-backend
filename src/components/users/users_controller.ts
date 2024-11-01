@@ -7,6 +7,7 @@ import { hasPermission } from "../../utils/auth_util";
 import { BaseController } from "../../utils/base_controller";
 import { Users } from "./users_entity";
 import { sendMail } from "../../utils/email_util";
+import { CacheUtil } from "../../utils/cache_util";
 
 export class UsersController extends BaseController {
   // Handles adding a new user to the DB
@@ -77,11 +78,25 @@ export class UsersController extends BaseController {
         .json({ statusCode: 403, status: "error", message: "Unauthorised" });
       return;
     }
+
+    // First check user in cache and return if so
+    const userFromCache = await CacheUtil.get("User", req.params.id);
+    if (userFromCache) {
+      console.log("From the cache", userFromCache);
+      res
+        .status(200)
+        .json({ statusCode: 200, status: "success", data: userFromCache });
+      return;
+    }
+
     const service = new UsersService();
     const result = await service.findOne(req.params.id);
     if (result.statusCode === 200) {
       // Remove password field to send in response
       delete result.data.password;
+
+      // Set user in the cache
+      CacheUtil.set("User", req.params.id, result.data);
     }
     res.status(result.statusCode).json(result);
     return;
@@ -126,6 +141,7 @@ export class UsersController extends BaseController {
     }
     const service = new UsersService();
     const result = await service.delete(req.params.id);
+    CacheUtil.remove("User", req.params.id);
     res.status(result.statusCode).json(result);
     return;
   }
@@ -451,5 +467,19 @@ export class UsersUtil {
       return usernames;
     }
     return [];
+  }
+
+  public static async putAllUsersInCache() {
+    const service = new UsersService();
+    const result = await service.findAll({});
+    if (result.statusCode === 200) {
+      const users = result.data;
+      users.forEach((i) => {
+        CacheUtil.set("User", i.user_id, i);
+      });
+      console.log("All users added to cache");
+      return;
+    }
+    console.log("Error while adding all users to cache () => ", result.message);
   }
 }

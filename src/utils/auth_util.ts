@@ -14,7 +14,7 @@ export const authorize = async (
   const token = req.headers?.authorization
     ? (req.headers?.authorization?.split("Bearer ")[1] as string)
     : null;
-  console.log("HELLO");
+
   if (!token) {
     return res.status(401).json({
       statusCode: 401,

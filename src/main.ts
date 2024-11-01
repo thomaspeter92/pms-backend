@@ -3,6 +3,8 @@ import cluster from "cluster";
 import os from "os";
 import { DatabaseUtil } from "./utils/db";
 import { DDLUtil } from "./utils/ddl_util";
+import { CacheUtil } from "./utils/cache_util";
+import { UsersUtil } from "./components/users/users_controller";
 require("dotenv").config();
 
 const numCPUs = os.cpus().length;
@@ -32,7 +34,16 @@ if (cluster.isPrimary) {
   }
 } else {
   const server = new ExpressServer();
+
+  // init database util
   new DatabaseUtil();
+
+  // init cache util
+  new CacheUtil();
+
+  setTimeout(() => {
+    UsersUtil.putAllUsersInCache();
+  }, 1000 * 10);
 
   process.on("uncaughtException", (error: Error) => {
     console.error(
