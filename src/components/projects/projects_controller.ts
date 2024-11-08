@@ -116,4 +116,10 @@ export class ProjectsUtil {
     // if same length, all the ids are valid
     return projects.data.length === project_ids.length;
   }
+
+  public static async getProjectByProjectId(project_id: string) {
+    const service = new ProjectsService();
+    const project = await service.findOne(project_id);
+    return project.data;
+  }
 }

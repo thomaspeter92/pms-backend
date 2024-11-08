@@ -8,6 +8,7 @@ import { BaseController } from "../../utils/base_controller";
 import { Users } from "./users_entity";
 import { sendMail } from "../../utils/email_util";
 import { CacheUtil } from "../../utils/cache_util";
+import { NotificationUtil } from "../../utils/notification_util";
 
 export class UsersController extends BaseController {
   // Handles adding a new user to the DB
@@ -330,11 +331,16 @@ export class UsersController extends BaseController {
       html: `Hello ${user.username}, <p>To reset your password, please follow the following link: </p> <p><a href="${resetLink}"> Reset Password </p>`,
     };
 
-    const emailStatus = await sendMail(
+    const emailStatus = NotificationUtil.sendEmail(
       mailOptions.to,
       mailOptions.subject,
       mailOptions.html
     );
+    // const emailStatus = await sendMail(
+    //   mailOptions.to,
+    //   mailOptions.subject,
+    //   mailOptions.html
+    // );
     if (emailStatus) {
       res.status(200).send({
         statusCode: 200,
@@ -481,5 +487,16 @@ export class UsersUtil {
       return;
     }
     console.log("Error while adding all users to cache () => ", result.message);
+  }
+
+  public static async getUserById(userId: string) {
+    const service = new UsersService();
+
+    const queryResult = await service.findOne(userId);
+    if (queryResult.statusCode === 200) {
+      const user = queryResult.data;
+      return user;
+    }
+    return null;
   }
 }

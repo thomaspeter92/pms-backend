@@ -1,8 +1,11 @@
 import * as nodemailer from "nodemailer";
+import Queue from "bull";
 
 export class NotificationUtil {
   private static transporter;
   private static from: string;
+
+  private static emailQueue = new Queue("emailQueue", "redis://127.0.0.1:6379");
 
   constructor(config) {
     if (!config) {
@@ -12,15 +15,15 @@ export class NotificationUtil {
       NotificationUtil.transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: config.email_config.user,
-          pass: config.email_config.password,
+          user: process.env.GMAIL_ACCOUNT,
+          pass: process.env.GMAIL_APP_PASSWORD,
         },
       });
-      NotificationUtil.from = config.email_config.from;
     }
+    NotificationUtil.from = config.email_config.from;
   }
 
-  public async sendEmail(to: string, subject: string, body: string) {
+  public static async sendEmail(to: string, subject: string, body: string) {
     try {
       const mailOptions = {
         from: NotificationUtil.from,
@@ -29,7 +32,7 @@ export class NotificationUtil {
         html: body,
       };
 
-      const status = await NotificationUtil.transporter.sendEmail(mailOptions);
+      const status = await NotificationUtil.transporter.sendMail(mailOptions);
       if (status?.messageId) {
         return status.messageId;
       } else return false;
@@ -37,5 +40,13 @@ export class NotificationUtil {
       console.log("Error while sending email", error.message);
       return false;
     }
+  }
+
+  public static async enqueueEmail(to: string, subject: string, body: string) {
+    await NotificationUtil.emailQueue.add({
+      to,
+      subject,
+      body,
+    });
   }
 }

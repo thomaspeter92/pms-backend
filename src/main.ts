@@ -5,6 +5,9 @@ import { DatabaseUtil } from "./utils/db";
 import { DDLUtil } from "./utils/ddl_util";
 import { CacheUtil } from "./utils/cache_util";
 import { UsersUtil } from "./components/users/users_controller";
+import { NotificationUtil } from "./utils/notification_util";
+import * as config from "../server_config.json";
+
 require("dotenv").config();
 
 const numCPUs = os.cpus().length;
@@ -40,6 +43,8 @@ if (cluster.isPrimary) {
 
   // init cache util
   new CacheUtil();
+
+  new NotificationUtil(config);
 
   setTimeout(() => {
     UsersUtil.putAllUsersInCache();
