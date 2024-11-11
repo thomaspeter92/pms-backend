@@ -3,7 +3,7 @@ import { hasPermission } from "../../utils/auth_util";
 import { TasksService } from "./tasks_service";
 import { ProjectsUtil } from "../projects/projects_controller";
 import { UsersUtil } from "../users/users_controller";
-import { NotificationUtil } from "utils/notification_util";
+import { NotificationUtil } from "../../utils/notification_util";
 import { Projects } from "components/projects/projects_entity";
 import { Tasks } from "./tasks_entity";
 
@@ -47,6 +47,7 @@ export class TaskController {
       // If all is valid, create task
       const result = await service.create(task);
       res.status(200).json(result);
+      console.log(result);
       await TasksUtil.notifyUsers(project, task);
     } catch (error) {
       console.error(`Error while adding a new task`, error.message);
@@ -122,8 +123,10 @@ export class TasksUtil {
   public static async notifyUsers(project: Projects, task: Tasks) {
     if (project) {
       const userIds = project.user_ids;
+      console.log(userIds);
       for (const userId of userIds) {
         const user = await UsersUtil.getUserById(userId);
+        console.log(user);
         if (user) {
           await NotificationUtil.enqueueEmail(
             user.email,
