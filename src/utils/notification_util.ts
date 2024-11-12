@@ -24,6 +24,7 @@ export class NotificationUtil {
   }
 
   public static async sendEmail(to: string, subject: string, body: string) {
+    console.log(to, subject, body, NotificationUtil.from);
     try {
       const mailOptions = {
         from: NotificationUtil.from,
@@ -31,7 +32,6 @@ export class NotificationUtil {
         subject: subject,
         html: body,
       };
-
       const status = await NotificationUtil.transporter.sendMail(mailOptions);
       if (status?.messageId) {
         return status.messageId;
@@ -43,10 +43,13 @@ export class NotificationUtil {
   }
 
   public static async enqueueEmail(to: string, subject: string, body: string) {
+    console.log(to, subject, body, NotificationUtil.from);
+
     await NotificationUtil.emailQueue.add({
       to,
       subject,
       body,
     });
+    return true;
   }
 }

@@ -48,7 +48,7 @@ export class TaskController {
       const result = await service.create(task);
       res.status(200).json(result);
       console.log(result);
-      await TasksUtil.notifyUsers(project, task);
+      await TasksUtil.notifyUsers(project, task, "add");
     } catch (error) {
       console.error(`Error while adding a new task`, error.message);
       res.status(500).json({
@@ -99,8 +99,9 @@ export class TaskController {
     const task = req.body;
     const service = new TasksService();
     const result = await service.update(req.params.id, task);
+    const project = await ProjectsUtil.getProjectByProjectId(task.project_id);
     res.status(result.statusCode).json(result);
-
+    await TasksUtil.notifyUsers(project, task, "update");
     return;
   }
 
@@ -114,25 +115,37 @@ export class TaskController {
       return;
     }
     const service = new TasksService();
+
     const result = await service.delete(req.params.id);
     res.status(result.statusCode).json(result);
+
+    // Add notification to delete task? If so, need to pull task first based on the provided ID, to pass to the notify function.
   }
 }
 
 export class TasksUtil {
-  public static async notifyUsers(project: Projects, task: Tasks) {
+  public static async notifyUsers(
+    project: Projects,
+    task: Tasks,
+    action: "add" | "update" | "delete"
+  ) {
     if (project) {
       const userIds = project.user_ids;
-      console.log(userIds);
+      let subject: string, body: string;
+      if (action === "add") {
+        subject = "New Task Created";
+        body = `A new task has been created with the title: ${task.name}`;
+      } else if (action === "update") {
+        subject = "Task Updated";
+        body = `A new task has been updated with the title: ${task.name}`;
+      } else if (action === "delete") {
+        subject = "Task Deleted";
+        body = `A task has been deleted with the title: ${task.name}`;
+      }
       for (const userId of userIds) {
         const user = await UsersUtil.getUserById(userId);
-        console.log(user);
         if (user) {
-          await NotificationUtil.enqueueEmail(
-            user.email,
-            "New Task Created",
-            `A new task has been created with the title: ${task.name}`
-          );
+          await NotificationUtil.enqueueEmail(user.email, subject, body);
         }
       }
     }

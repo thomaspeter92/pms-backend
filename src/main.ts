@@ -7,6 +7,7 @@ import { CacheUtil } from "./utils/cache_util";
 import { UsersUtil } from "./components/users/users_controller";
 import { NotificationUtil } from "./utils/notification_util";
 import * as config from "../server_config.json";
+import { QueueWorker } from "./workers/queue_worker";
 
 require("dotenv").config();
 
@@ -44,7 +45,9 @@ if (cluster.isPrimary) {
   // init cache util
   new CacheUtil();
 
+  // Init notifications and Queue
   new NotificationUtil(config);
+  new QueueWorker().beginProcessing();
 
   setTimeout(() => {
     UsersUtil.putAllUsersInCache();
