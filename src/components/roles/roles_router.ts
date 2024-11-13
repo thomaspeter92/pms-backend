@@ -14,7 +14,6 @@ const validRoleInput = [
       const areAllRightsValid = accessRights.every((right) =>
         validRights.includes(right)
       );
-      console.log(accessRights);
       if (!areAllRightsValid) {
         throw new Error("Invalid permission");
       }

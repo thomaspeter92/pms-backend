@@ -155,8 +155,6 @@ export class UsersController extends BaseController {
 
     const service = new UsersService();
 
-    console.log(req.user);
-
     const dbUser = await service.findOne(req.user.user_id);
 
     if (dbUser.statusCode !== 200) {

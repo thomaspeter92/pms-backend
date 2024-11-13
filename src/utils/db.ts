@@ -36,10 +36,10 @@ export class DatabaseUtil {
    * Establish a DB connection or returns existing one
    * @returns Databse connection instance
    */
-  public async dbConnect() {
+  public async dbConnect(): Promise<DataSource> {
     try {
       if (DatabaseUtil.connection) {
-        return DatabaseUtil.connection;
+        return Promise.resolve(DatabaseUtil.connection);
       }
       const db_config = this.server_config.db_config;
       const AppDataSource = new DataSource({

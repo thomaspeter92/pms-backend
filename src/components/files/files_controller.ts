@@ -35,8 +35,7 @@ export class FilesController extends BaseController {
       const service = new FilesService();
       const server_config: IServerConfig = config;
       const result = await service.findOne(req.params.id);
-      console.log(req.params.id, result);
-      console.log(config);
+
       const file_path = `${server_config.attached_files_url}/${result.data.file_name}`;
       res.sendFile(file_path, (err) => {
         if (err) {

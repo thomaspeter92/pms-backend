@@ -81,7 +81,6 @@ export class TaskController {
         message: "Unauthorised",
       });
     }
-    console.log(req.params.id);
 
     const service = new TasksService();
     const result = await service.findOne(req.params.id);

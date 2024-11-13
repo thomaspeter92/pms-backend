@@ -29,7 +29,6 @@ export class ProjectsController {
       const createdProject = await service.create(project);
       res.status(200).json(createdProject);
     } catch (error) {
-      console.log();
       res.status(500).json({
         statusCode: 500,
         status: "error",

@@ -15,7 +15,8 @@
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
     "emitDecoratorMetadata": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["express", "./src/custom.d.ts"]
     // "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
