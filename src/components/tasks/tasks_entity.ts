@@ -58,6 +58,9 @@ export class Tasks {
   @Column({ type: "enum", enum: Status, default: Status.NotStarted })
   status: Status;
 
+  @Column({ type: "enum", enum: Priority, default: Priority.Low })
+  priority: Priority;
+
   @Column("text", { array: true, default: [] })
   supported_files: string[];
 
