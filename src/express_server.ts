@@ -3,6 +3,7 @@ import { IServerConfig } from "./utils/config";
 import * as config from "../server_config.json";
 import { AppRouter } from "./routes/index";
 import bodyParser from "body-parser";
+import cors from "cors";
 
 export class ExpressServer {
   private static server = null;
@@ -14,6 +15,7 @@ export class ExpressServer {
     // initialise express app
     this.app = express();
 
+    this.app.use(cors());
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(bodyParser.json());
 

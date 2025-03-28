@@ -9,7 +9,7 @@ export class CacheUtil {
 
   public static async get(cacheName: string, key: string) {
     try {
-      const data = await CacheUtil.client.json.get(`${cacheName}:${key}`);
+      const data = await CacheUtil.client.get(`${cacheName}:${key}`);
       return data;
     } catch (error) {
       console.error("Error getting cache", error);
@@ -19,7 +19,7 @@ export class CacheUtil {
 
   public static async set(cacheName: string, key: string, value) {
     try {
-      await CacheUtil.client.json.set(`${cacheName}:${key}`, ".", value);
+      await CacheUtil.client.set(`${cacheName}:${key}`, ".", value);
     } catch (error) {
       console.error("Error getting cache", error);
     }
