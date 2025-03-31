@@ -11,7 +11,7 @@ echo "Starting app with PM2..."
 pm2 delete pms-backend || true
 
 # Start or restart the app with PM2
-pm2 start dist/index.js --name pms-backend
+pm2 start dist/src/main.js --name pms-backend
 
 # Save PM2 process list and startup script for reboot
 pm2 save
