@@ -43,15 +43,15 @@ if (cluster.isPrimary) {
   new DatabaseUtil();
 
   // init cache util
-  new CacheUtil();
+  // new CacheUtil();
 
   // Init notifications and Queue
-  new NotificationUtil(config);
+  // new NotificationUtil(config);
   new QueueWorker().beginProcessing();
 
-  setTimeout(() => {
-    UsersUtil.putAllUsersInCache();
-  }, 1000 * 10);
+  // setTimeout(() => {
+  //   UsersUtil.putAllUsersInCache();
+  // }, 1000 * 10);
 
   process.on("uncaughtException", (error: Error) => {
     console.error(
