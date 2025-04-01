@@ -1,12 +1,12 @@
 {
   "port": 3000,
   "db_config": {
-    "db": "database-1",
+    "db": "pms",
     "username": "postgres",
     "password": "password",
-    "host": "database-1.cpm028ys8fws.ap-northeast-2.rds.amazonaws.com",
+    "host": "localhost",
     "port": 5432,
-    "dbname": "database-1"
+    "dbname": "pms"
   },
 
   "email_config": {

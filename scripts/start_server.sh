@@ -7,12 +7,17 @@ cd /home/ec2-user/pms-backend
 
 echo "Starting app with PM2..."
 
-# Kill previous instance if needed (optional)
-pm2 delete pms-backend || true
+# Optional: remove if not needed
+pm2 delete pms-backend || echo "PM2 app not found, continuing..."
 
-# Start or restart the app with PM2
-pm2 start dist/src/main.js --name pms-backend
+# Start the app if the file exists
+if [ -f "dist/src/main.js" ]; then
+  pm2 start dist/src/main.js --name pms-backend
+  pm2 save
+else
+  echo "❌ Error: dist/src/main.js not found"
+  exit 1
+fi
 
-# Save PM2 process list and startup script for reboot
-pm2 save
-pm2 startup systemd -u ec2-user --hp /home/ec2-user
+# DO NOT run this during CodeDeploy (it requires sudo and causes failure)
+# pm2 startup systemd -u ec2-user --hp /home/ec2-user
