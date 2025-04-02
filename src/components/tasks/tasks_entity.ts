@@ -11,9 +11,9 @@ import { Users } from "../users/users_entity";
 import { Projects } from "../projects/projects_entity";
 
 export enum Status {
-  NotStarted = "Not-Started",
+  Backlog = "Backlog",
   InProgress = "In-Progress",
-  Completed = "Completed",
+  Done = "Done",
 }
 
 export enum Priority {
@@ -55,7 +55,7 @@ export class Tasks {
   @Column({ nullable: true })
   actual_end_time: Date;
 
-  @Column({ type: "enum", enum: Status, default: Status.NotStarted })
+  @Column({ type: "enum", enum: Status, default: Status.Backlog })
   status: Status;
 
   @Column({ type: "enum", enum: Priority, default: Priority.Low })

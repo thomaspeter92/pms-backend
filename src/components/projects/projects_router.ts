@@ -1,5 +1,5 @@
 import { Express } from "express";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { ProjectsController } from "./projects_controller";
 import { checkValidDate } from "../../utils/common";
 import { authorize } from "../../utils/auth_util";
@@ -33,6 +33,8 @@ const validProjectInput = [
   }),
 ];
 
+const validUUID = [param("id").isUUID().withMessage("Must be a valid UUID")];
+
 export class ProjectsRouter {
   private baseEndpoint = "/api/projects";
 
@@ -47,7 +49,7 @@ export class ProjectsRouter {
 
     app
       .route(this.baseEndpoint + "/:id")
-      .all(authorize)
+      .all(authorize, validate(validUUID))
       .get(controller.getDetailsHandler)
       .put(validate(validProjectInput), controller.updateHandler)
       .delete(controller.deleteHandler);

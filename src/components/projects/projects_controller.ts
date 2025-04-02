@@ -71,6 +71,7 @@ export class ProjectsController {
     result.data["users"] = await UsersUtil.getUsernamesById(
       result.data.user_ids
     );
+    console.log(req.params);
     delete result.data.user_ids;
     res.status(result.statusCode).send(result);
     return;
