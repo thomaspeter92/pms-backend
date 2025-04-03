@@ -22,6 +22,11 @@ export enum Priority {
   High = "High",
 }
 
+export enum TaskType {
+  Story = "Story",
+  Task = "Task",
+}
+
 @Entity()
 export class Tasks {
   @PrimaryGeneratedColumn("uuid")
@@ -57,6 +62,9 @@ export class Tasks {
 
   @Column({ type: "enum", enum: Status, default: Status.Backlog })
   status: Status;
+
+  @Column({ type: "enum", enum: TaskType, default: TaskType.Task })
+  task_type: TaskType;
 
   @Column({ type: "enum", enum: Priority, default: Priority.Low })
   priority: Priority;
