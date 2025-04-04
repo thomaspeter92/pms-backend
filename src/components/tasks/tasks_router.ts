@@ -50,11 +50,11 @@ const updateTaskInput = [
     if (!checkValidDate(val)) {
       throw new Error("Invalid date format YYYY-MM-DD HH:mm:ss");
     }
-    const startTime = new Date(val);
-    const currentTime = new Date();
-    if (startTime <= currentTime) {
-      throw new Error("Start time must be in the future");
-    }
+    // const startTime = new Date(val);
+    // const currentTime = new Date();
+    // if (startTime <= currentTime) {
+    //   throw new Error("Start time must be in the future");
+    // }
     return true;
   }),
   body("estimated_end_time").custom((val, { req }) => {
