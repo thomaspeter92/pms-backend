@@ -18,7 +18,6 @@ export class FilesController extends BaseController {
       fileData.created_by = req?.user?.user_id ? req?.user?.user_id : null;
       fileData.task_id = req.body?.task_id;
       let db = await service.create(fileData);
-      console.log(db);
       res
         .status(200)
         .json({ message: "File upload success", status: "success", fileData });

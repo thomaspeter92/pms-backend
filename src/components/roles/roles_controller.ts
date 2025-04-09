@@ -99,7 +99,6 @@ export class RolesUtil {
 
     // Query the db, check if all role ids are valid
     const roles = await rolesService.findByIds(role_ids);
-    console.log(roles);
 
     // Check if all the role_ids are found in the db
     return roles.data.length === role_ids.length;

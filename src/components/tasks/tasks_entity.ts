@@ -6,9 +6,11 @@ import {
   ManyToOne,
   JoinColumn,
   Entity,
+  OneToMany,
 } from "typeorm";
 import { Users } from "../users/users_entity";
 import { Projects } from "../projects/projects_entity";
+import { Comments } from "../../components/comments/comments_entity";
 
 export enum Status {
   Backlog = "Backlog",
@@ -77,4 +79,7 @@ export class Tasks {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => Comments, (comment) => comment.task_id)
+  comments: Comments[];
 }

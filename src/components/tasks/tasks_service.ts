@@ -18,6 +18,7 @@ export class TasksService extends BaseService<Tasks> {
       .createQueryBuilder("task")
       .leftJoin("task.project_id", "project")
       .leftJoin("task.user_id", "user")
+      .leftJoinAndSelect("task.comments", "comment")
       .addSelect([
         "task.*",
         "task.project_id as project",
@@ -27,28 +28,19 @@ export class TasksService extends BaseService<Tasks> {
         "user.email",
       ]);
 
-    if (queryParams["username"]) {
-      queryBuilder.andWhere("user.username ILIKE :username", {
-        username: `%${queryParams["username"]}`,
-      });
-    }
-    if (queryParams["projectname"]) {
-      queryBuilder.andWhere("project.name ILIKE :projectName", {
-        projectName: `%${queryParams["projectname"]}`,
-      });
-    }
-    if (queryParams["project_id"]) {
+    if (queryParams["projectId"]) {
       queryBuilder.andWhere("project.project_id = :projectId", {
-        projectId: `%${queryParams["project_id"]}`,
+        projectId: `${queryParams["projectId"]}`,
       });
     }
 
     const data = await queryBuilder.getMany();
-
     data.forEach((d) => {
-      (d["projectDetails"] = d.project_id),
-        (d["userDetails"] = d.user_id),
-        delete d.project_id;
+      d["projectDetails"] = d.project_id;
+      d["userDetails"] = d.user_id;
+      d["comment_count"] = d.comments.length;
+      delete d.comments;
+      delete d.project_id;
       delete d.user_id;
     });
 

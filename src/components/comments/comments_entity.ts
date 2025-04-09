@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from "typeorm";
 
 @Entity()
@@ -18,13 +19,13 @@ export class Comments {
   @Column({ type: "text" })
   comment: string;
 
-  @OneToOne(() => Users, (userData) => userData.user_id)
+  @ManyToOne(() => Users, (userData) => userData.user_id)
   @JoinColumn({ name: "user_id" })
-  user_id: string;
+  user_id: Users;
 
-  @OneToOne(() => Tasks, (taskData) => taskData.task_id)
+  @ManyToOne(() => Tasks, (taskData) => taskData.task_id)
   @JoinColumn({ name: "task_id" })
-  task_id: string;
+  task_id: Tasks;
 
   @Column("text", { array: true, default: [] })
   supported_files: string[];

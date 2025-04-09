@@ -48,7 +48,7 @@ export class TaskController {
       const result = await service.create(task);
       res.status(200).json(result);
       console.log(result);
-      await TasksUtil.notifyUsers(project, task, "add");
+      // await TasksUtil.notifyUsers(project, task, "add");
     } catch (error) {
       console.error(`Error while adding a new task`, error.message);
       res.status(500).json({
@@ -65,6 +65,8 @@ export class TaskController {
         .status(403)
         .send({ statusCode: 403, status: "error", message: "Unauthorised" });
     }
+
+    console.log(req.query);
 
     const service = new TasksService();
     const result = await service.findAll(req.query);
@@ -123,6 +125,12 @@ export class TaskController {
 }
 
 export class TasksUtil {
+  public static async getTaskById(task_id: string) {
+    const service = new TasksService();
+    const task = await service.findOne(task_id);
+    return task.data;
+  }
+
   public static async notifyUsers(
     project: Projects,
     task: Tasks,
