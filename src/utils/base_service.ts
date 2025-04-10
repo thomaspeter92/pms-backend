@@ -130,7 +130,7 @@ export class BaseService<T> {
         for (const field in queryParams) {
           if (queryParams.hasOwnProperty(field)) {
             const value = queryParams[field];
-            query.andWhere(`${field}='${value}'`);
+            query.andWhere(`${field} LIKE '%${value}%'`);
           }
         }
         data = await query.getMany();

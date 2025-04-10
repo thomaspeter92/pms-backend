@@ -5,7 +5,7 @@ import { RolesService } from "../components/roles/roles_service";
 import { UsersService } from "../components/users/users_service";
 import { Users } from "../components/users/users_entity";
 import * as config from "../../server_config.json";
-import { encryptString } from "./common";
+import { encryptString, Rights } from "./common";
 
 export class DDLUtil {
   private static superAdminRoleId: string;
@@ -22,9 +22,24 @@ export class DDLUtil {
         created_at: new Date(),
         updated_at: new Date(),
       };
+      const userRole: Roles = {
+        role_id: v4(),
+        name: "User",
+        description: "Has basic rights",
+        created_at: new Date(),
+        updated_at: new Date(),
+        rights: [
+          Rights.PROJECTS.GET_ALL,
+          Rights.PROJECTS.GET_DETAILS,
+          Rights.TASKS.ALL,
+          Rights.COMMENTS.ALL,
+          Rights.USERS.GET_ALL,
+        ].join(),
+      };
       const result = await service.create(role);
+      const result2 = await service.create(userRole);
       console.log("Add Default Role Result", result);
-      if (result.statusCode === 201) {
+      if (result.statusCode === 201 && result2.statusCode === 201) {
         this.superAdminRoleId = result.data.role_id;
         return true;
       } else if (result.statusCode === 409) {

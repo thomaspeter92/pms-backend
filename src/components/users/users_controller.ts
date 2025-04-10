@@ -43,6 +43,9 @@ export class UsersController extends BaseController {
 
       // Save user to the DB
       const createdUser = await service.create(user);
+
+      delete createdUser.data.password;
+
       res.status(createdUser.statusCode).json(createdUser);
       return;
     } catch (error) {
@@ -62,6 +65,8 @@ export class UsersController extends BaseController {
         .json({ statusCode: 403, status: "error", message: "Unauthorised" });
       return;
     }
+
+    console.log(req.query);
     const service = new UsersService();
     const result = await service.findAll(req.query);
     if (result.statusCode === 200) {
