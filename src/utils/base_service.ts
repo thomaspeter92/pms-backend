@@ -25,8 +25,6 @@ export class BaseService<T> {
       // Create the entity (creates in memory, not yet saved to DB. We can still manipulate before saving)
       const createdEntity = await this.repository.create(entity);
 
-      console.log(this.repository);
-
       // Save entity to the DB
       const savedEntity = await this.repository.save(createdEntity);
 
@@ -183,11 +181,12 @@ export class BaseService<T> {
       };
     }
   }
-  async customQuery(query: string): Promise<T[]> {
+  async customQuery(query: string, params: Record<string, any>): Promise<T[]> {
     try {
+      console.log(query, params);
       const data = await this.repository
         .createQueryBuilder()
-        .where(query)
+        .where(query, params)
         .getMany();
 
       return data;

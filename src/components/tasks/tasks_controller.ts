@@ -47,7 +47,6 @@ export class TaskController {
       // If all is valid, create task
       const result = await service.create(task);
       res.status(200).json(result);
-      console.log(result);
       // await TasksUtil.notifyUsers(project, task, "add");
     } catch (error) {
       console.error(`Error while adding a new task`, error.message);
@@ -64,6 +63,7 @@ export class TaskController {
       res
         .status(403)
         .send({ statusCode: 403, status: "error", message: "Unauthorised" });
+      return;
     }
 
     console.log(req.query);
@@ -102,7 +102,7 @@ export class TaskController {
     const result = await service.update(req.params.id, task);
     const project = await ProjectsUtil.getProjectByProjectId(task.project_id);
     res.status(result.statusCode).json(result);
-    await TasksUtil.notifyUsers(project, task, "update");
+    // await TasksUtil.notifyUsers(project, task, "update");
     return;
   }
 
@@ -131,30 +131,29 @@ export class TasksUtil {
     return task.data;
   }
 
-  public static async notifyUsers(
-    project: Projects,
-    task: Tasks,
-    action: "add" | "update" | "delete"
-  ) {
-    if (project) {
-      const userIds = project.user_ids;
-      let subject: string, body: string;
-      if (action === "add") {
-        subject = "New Task Created";
-        body = `A new task has been created with the title: ${task.name}`;
-      } else if (action === "update") {
-        subject = "Task Updated";
-        body = `A new task has been updated with the title: ${task.name}`;
-      } else if (action === "delete") {
-        subject = "Task Deleted";
-        body = `A task has been deleted with the title: ${task.name}`;
-      }
-      for (const userId of userIds) {
-        const user = await UsersUtil.getUserById(userId);
-        if (user) {
-          await NotificationUtil.enqueueEmail(user.email, subject, body);
-        }
-      }
-    }
-  }
+  // public static async notifyUsers(
+  //   project: Projects,
+  //   task: Tasks,
+  //   action: "add" | "update" | "delete"
+  // ) {
+  //   if (project) {
+  //     let subject: string, body: string;
+  //     if (action === "add") {
+  //       subject = "New Task Created";
+  //       body = `A new task has been created with the title: ${task.name}`;
+  //     } else if (action === "update") {
+  //       subject = "Task Updated";
+  //       body = `A new task has been updated with the title: ${task.name}`;
+  //     } else if (action === "delete") {
+  //       subject = "Task Deleted";
+  //       body = `A task has been deleted with the title: ${task.name}`;
+  //     }
+  //     for (const userId of userIds) {
+  //       const user = await UsersUtil.getUserById(userId);
+  //       if (user) {
+  //         await NotificationUtil.enqueueEmail(user.email, subject, body);
+  //       }
+  //     }
+  //   }
+  // }
 }

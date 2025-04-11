@@ -3,10 +3,6 @@ import cluster from "cluster";
 import os from "os";
 import { DatabaseUtil } from "./utils/db";
 import { DDLUtil } from "./utils/ddl_util";
-import { CacheUtil } from "./utils/cache_util";
-import { UsersUtil } from "./components/users/users_controller";
-import { NotificationUtil } from "./utils/notification_util";
-import * as config from "../server_config.json";
 import { QueueWorker } from "./workers/queue_worker";
 
 require("dotenv").config();

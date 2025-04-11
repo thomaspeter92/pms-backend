@@ -14,37 +14,45 @@ export class TasksService extends BaseService<Tasks> {
 
   // Need to override findAll method here for additional functionality
   override async findAll(queryParams: object): Promise<ApiResponse<Tasks[]>> {
-    const queryBuilder = this.tasksRepository
-      .createQueryBuilder("task")
-      .leftJoin("task.project_id", "project")
-      .leftJoin("task.user_id", "user")
-      .leftJoinAndSelect("task.comments", "comment")
-      .addSelect([
-        "task.*",
-        "task.project_id as project",
-        "project.name",
-        "user.user_id",
-        "user.username",
-        "user.email",
-      ]);
+    try {
+      const queryBuilder = this.tasksRepository
+        .createQueryBuilder("task")
+        .leftJoin("task.project_id", "project")
+        .leftJoin("task.user_id", "user")
+        .leftJoinAndSelect("task.comments", "comment")
+        .addSelect([
+          "task.*",
+          "task.project_id as project",
+          "project.name",
+          "user.user_id",
+          "user.username",
+          "user.email",
+        ]);
 
-    if (queryParams["projectId"]) {
-      queryBuilder.andWhere("project.project_id = :projectId", {
-        projectId: `${queryParams["projectId"]}`,
+      if (queryParams["projectId"]) {
+        queryBuilder.andWhere("project.project_id = :projectId", {
+          projectId: `${queryParams["projectId"]}`,
+        });
+      }
+
+      const data = await queryBuilder.getMany();
+      data.forEach((d) => {
+        d["projectDetails"] = d.project_id;
+        d["userDetails"] = d.user_id;
+        d["comment_count"] = d.comments.length;
+        delete d.comments;
+        delete d.project_id;
+        delete d.user_id;
       });
+
+      return { statusCode: 200, status: "success", data: data };
+    } catch (error) {
+      return {
+        status: "error",
+        statusCode: 500,
+        message: "Internal server error",
+      };
     }
-
-    const data = await queryBuilder.getMany();
-    data.forEach((d) => {
-      d["projectDetails"] = d.project_id;
-      d["userDetails"] = d.user_id;
-      d["comment_count"] = d.comments.length;
-      delete d.comments;
-      delete d.project_id;
-      delete d.user_id;
-    });
-
-    return { statusCode: 200, status: "success", data: data };
   }
 
   override async findOne(id: string): Promise<ApiResponse<Tasks>> {

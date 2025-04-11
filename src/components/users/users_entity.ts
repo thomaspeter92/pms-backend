@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from "typeorm";
 import { Roles } from "../roles/roles_entity";
+import { ProjectMember } from "../../components/project_member/project_member_entity";
 
 @Entity()
 export class Users {
@@ -36,4 +38,7 @@ export class Users {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => ProjectMember, (member) => member.user)
+  projects: ProjectMember[];
 }

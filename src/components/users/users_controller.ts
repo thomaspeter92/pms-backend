@@ -426,7 +426,9 @@ export class UsersUtil {
     try {
       if (username) {
         const service = new UsersService();
-        const users = await service.customQuery(`username = '${username}'`);
+        const users = await service.customQuery(`username = :username`, {
+          username: username,
+        });
         if (users && users.length > 0) {
           return users[0];
         }
@@ -441,7 +443,9 @@ export class UsersUtil {
     try {
       if (email) {
         const service = new UsersService();
-        const users = await service.customQuery(`email = '${email}'`);
+        const users = await service.customQuery(`email = :email`, {
+          email: email,
+        });
         if (users && users.length > 0) {
           return users[0];
         }

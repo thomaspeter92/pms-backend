@@ -7,6 +7,7 @@ import { Projects } from "../components/projects/projects_entity";
 import { Tasks } from "../components/tasks/tasks_entity";
 import { Comments } from "../components/comments/comments_entity";
 import { Files } from "../components/files/files_entity";
+import { ProjectMember } from "../components/project_member/project_member_entity";
 
 export class DatabaseUtil {
   public server_config: IServerConfig = config;
@@ -49,7 +50,15 @@ export class DatabaseUtil {
         username: db_config.username,
         password: db_config.password,
         database: db_config.dbname,
-        entities: [Roles, Users, Projects, Tasks, Comments, Files],
+        entities: [
+          Roles,
+          Users,
+          Projects,
+          Tasks,
+          Comments,
+          Files,
+          ProjectMember,
+        ],
         synchronize: true,
         logging: false,
         poolSize: 10,

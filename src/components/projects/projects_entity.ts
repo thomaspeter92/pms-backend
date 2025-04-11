@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
+
+import { ProjectMember } from "../../components/project_member/project_member_entity";
 
 @Entity()
 export class Projects {
@@ -17,9 +20,6 @@ export class Projects {
   @Column({ length: 500 })
   description: string;
 
-  @Column("uuid", { array: true, default: [] })
-  user_ids: string[];
-
   @Column()
   start_time: Date;
 
@@ -31,4 +31,7 @@ export class Projects {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(() => ProjectMember, (member) => member.project)
+  members: ProjectMember[];
 }

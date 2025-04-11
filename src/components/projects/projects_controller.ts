@@ -48,10 +48,6 @@ export class ProjectsController {
     }
     const service = new ProjectsService();
     const result = await service.findAll(req.query);
-    for (const project of result.data) {
-      project["users"] = await UsersUtil.getUsernamesById(project.user_ids);
-      delete project.user_ids;
-    }
 
     res.status(result.statusCode).json(result);
     return;
@@ -68,10 +64,10 @@ export class ProjectsController {
 
     const service = new ProjectsService();
     const result = await service.findOne(req.params.id);
-    result.data["users"] = await UsersUtil.getUsernamesById(
-      result.data.user_ids
-    );
-    delete result.data.user_ids;
+    // result.data["users"] = await UsersUtil.getUsernamesById(
+    //   result.data.user_ids
+    // );
+    // delete result.data.user_ids;
     res.status(result.statusCode).send(result);
     return;
   }

@@ -67,6 +67,7 @@ export class DDLUtil {
         role_id: this.superAdminRoleId,
         created_at: new Date(),
         updated_at: new Date(),
+        projects: [],
       };
       const result = await service.create(user);
       console.log("Add Default User Result", result);
