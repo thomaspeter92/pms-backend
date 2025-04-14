@@ -3,6 +3,7 @@ import { hasPermission } from "../../utils/auth_util";
 import { Request, Response } from "express";
 import { ProjectMemberService } from "./project_member_service";
 import { UsersUtil } from "../../components/users/users_controller";
+import { STATUS_CODES } from "http";
 
 export class ProjectMemberController {
   public async addHandler(req: Request, res: Response): Promise<void> {
@@ -19,17 +20,26 @@ export class ProjectMemberController {
 
       const userValid = await UsersUtil.checkValidUserIds([new_member.user_id]);
 
+      if (!userValid) {
+        res.status(400).send({
+          statusCode: 400,
+          status: "error",
+          message: "Not a valid user",
+        });
+        return;
+      }
+
       // Check user isnt already on this project
       const existing = await service.customQuery(
         `user_id =  :userId AND project_id = :projectId`,
         { userId: new_member.user_id, projectId: new_member.project_id }
       );
 
-      if (!userValid || existing?.length > 0) {
+      if (existing.length > 0) {
         res.status(400).send({
           statusCode: 400,
           status: "error",
-          message: "invalid user_id or user is already on this project",
+          message: "This user is already a member on this project.",
         });
         return;
       }
@@ -56,5 +66,13 @@ export class ProjectMemberController {
     const results = await service.findAll(query);
 
     res.status(results.statusCode).json(results);
+  }
+
+  public async deleteHandler(req: Request, res: Response) {
+    const service = new ProjectMemberService();
+
+    const result = await service.delete(req.params.id);
+
+    res.status(result.statusCode).json(result);
   }
 }

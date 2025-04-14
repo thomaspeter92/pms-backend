@@ -14,5 +14,10 @@ export class ProjectMemberRouter {
       .all(authorize)
       .get(controller.getAllHander)
       .post(controller.addHandler);
+
+    app
+      .route(this.baseEndpoint + "/:id")
+      .all(authorize)
+      .delete(controller.deleteHandler);
   }
 }
