@@ -23,7 +23,9 @@ export class Comments {
   @JoinColumn({ name: "user_id" })
   user_id: Users;
 
-  @ManyToOne(() => Tasks, (taskData) => taskData.task_id)
+  @ManyToOne(() => Tasks, (taskData) => taskData.task_id, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "task_id" })
   task_id: Tasks;
 

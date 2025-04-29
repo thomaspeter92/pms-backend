@@ -80,6 +80,8 @@ export class Tasks {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => Comments, (comment) => comment.task_id)
+  @OneToMany(() => Comments, (comment) => comment.task_id, {
+    onDelete: "CASCADE",
+  })
   comments: Comments[];
 }
