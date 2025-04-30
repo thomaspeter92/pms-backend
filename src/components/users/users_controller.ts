@@ -244,7 +244,12 @@ export class UsersController extends BaseController {
 
     // Generate access and refresh token
     const accessToken: string = jwt.sign(
-      { email: user.email, username: user.username, user_id: user.user_id },
+      {
+        email: user.email,
+        username: user.username,
+        user_id: user.user_id,
+        name: user.full_name,
+      },
       SERVER_CONST.JWTSECRET,
       { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS }
     );
