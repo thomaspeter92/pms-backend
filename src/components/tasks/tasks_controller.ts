@@ -18,7 +18,7 @@ export class TaskController {
 
     try {
       let service = new TasksService();
-      const task = req.body;
+      const task = { user_id: req?.user?.user_id, ...req.body };
 
       const project = await ProjectsUtil.getProjectByProjectId(task.project_id);
 
@@ -33,16 +33,16 @@ export class TaskController {
         return;
       }
 
-      // Check user is valid and in the DB
-      const isValidUser = await UsersUtil.checkValidUserIds([task.user_id]);
-      if (!isValidUser) {
-        res.status(400).json({
-          statusCode: 400,
-          status: "error",
-          message: "Invalid user id",
-        });
-        return;
-      }
+      // // Check user is valid and in the DB
+      // const isValidUser = await UsersUtil.checkValidUserIds([task.user_id]);
+      // if (!isValidUser) {
+      //   res.status(400).json({
+      //     statusCode: 400,
+      //     status: "error",
+      //     message: "Invalid user id",
+      //   });
+      //   return;
+      // }
 
       // If all is valid, create task
       const result = await service.create(task);

@@ -12,7 +12,6 @@ const validTaskInput = [
     .isLength({ min: 10 })
     .withMessage("Description is required"),
   body("project_id").trim().notEmpty().withMessage("Project ID is required"),
-  body("user_id").trim().notEmpty().withMessage("User ID is required"),
   body("estimated_start_time")
     .trim()
     .notEmpty()
